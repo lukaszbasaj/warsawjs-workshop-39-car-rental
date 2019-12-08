@@ -3,6 +3,8 @@
 const db = require('../db');
 const DAY_MS = 60 * 60 * 24 * 1000;
 const listPrice = require('../strategies/listPrice');
+const Money = require('../types/Money');
+const DateRange = require('../types/DateRange');
 
 module.exports = function(app) {
   app.get('/price', {
@@ -27,7 +29,10 @@ module.exports = function(app) {
     if (!car) {
       return Promise.reject(new Error('No entry found for car: ' + car_id));
     }
-    const { price, days } = listPrice(car.list_price_amount, car.list_price_currency, start, end);
+    const { price, days } = listPrice(
+      new Money({ amount: car.list_price_amount, currency: car.list_price_currency }),
+      new DateRange({ start, end })
+    )
     reply.view('price', {
       car,
       price,
